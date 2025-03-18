@@ -1,3 +1,4 @@
+// Import necessary libraries from CDN
 import 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
 
 const faceMeshScript = document.createElement('script');
@@ -17,9 +18,11 @@ function initScene() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 5;
+    camera.lookAt(scene.position);
     
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x333333); // Gray background for visibility
     document.body.appendChild(renderer.domElement);
 }
 
@@ -36,6 +39,7 @@ function dropCube() {
 // Animate cubes falling
 function animate() {
     requestAnimationFrame(animate);
+    console.log("Animating..."); // Debugging log
     
     cubes.forEach(cube => {
         cube.position.y -= 0.02;
@@ -68,6 +72,15 @@ function initFaceMesh() {
 
     // Initialize webcam
     const video = document.createElement('video');
+    video.id = 'webcam';
+    video.style.position = 'absolute';
+    video.style.top = '10px';
+    video.style.left = '10px';
+    video.style.width = '200px';
+    video.style.height = 'auto';
+    video.style.border = '2px solid white';
+    document.body.appendChild(video);
+    
     navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
         video.srcObject = stream;
         video.play();
