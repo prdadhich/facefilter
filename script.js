@@ -2,6 +2,7 @@ import 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
 
 const faceMeshScript = document.createElement('script');
 faceMeshScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh';
+faceMeshScript.onload = () => initFaceMesh(); // Initialize FaceMesh after script loads
 document.head.appendChild(faceMeshScript);
 
 const cameraUtilsScript = document.createElement('script');
@@ -43,41 +44,44 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// Initialize FaceMesh
-const faceMesh = new FaceMesh({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}` });
+// Initialize FaceMesh after script is loaded
+function initFaceMesh() {
+    const faceMesh = new FaceMesh({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}` });
     faceMesh.setOptions({
         maxNumFaces: 1,
+        refineLandmarks: true,
         minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5
     });
 
-faceMesh.onResults(results => {
-    if (results.multiFaceLandmarks.length > 0) {
-        const landmarks = results.multiFaceLandmarks[0];
-        const upperLip = landmarks[13];
-        const lowerLip = landmarks[14];
-        
-        if (lowerLip.y - upperLip.y > 0.03) { // Check if lips are open
-            dropCube();
+    faceMesh.onResults(results => {
+        if (results.multiFaceLandmarks.length > 0) {
+            const landmarks = results.multiFaceLandmarks[0];
+            const upperLip = landmarks[13];
+            const lowerLip = landmarks[14];
+            
+            if (lowerLip.y - upperLip.y > 0.03) { // Check if lips are open
+                dropCube();
+            }
         }
-    }
-});
-
-// Initialize webcam
-const video = document.createElement('video');
-navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-    video.srcObject = stream;
-    video.play();
-    
-    const camera = new Camera(video, {
-        onFrame: async () => {
-            await faceMesh.send({ image: video });
-        },
-        width: 640,
-        height: 480
     });
-    camera.start();
-});
+
+    // Initialize webcam
+    const video = document.createElement('video');
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+        video.srcObject = stream;
+        video.play();
+        
+        const camera = new Camera(video, {
+            onFrame: async () => {
+                await faceMesh.send({ image: video });
+            },
+            width: 640,
+            height: 480
+        });
+        camera.start();
+    });
+}
 
 // Start everything
 initScene();
