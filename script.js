@@ -1,7 +1,12 @@
-// Import necessary libraries
-import * as THREE from 'three';
-import { FaceMesh } from '@mediapipe/face_mesh';
-import { Camera } from '@mediapipe/camera_utils';
+import 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+
+const faceMeshScript = document.createElement('script');
+faceMeshScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh';
+document.head.appendChild(faceMeshScript);
+
+const cameraUtilsScript = document.createElement('script');
+cameraUtilsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils';
+document.head.appendChild(cameraUtilsScript);
 
 let scene, camera, renderer;
 let cubes = [];
