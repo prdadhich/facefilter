@@ -19,16 +19,25 @@ async function initializeFaceMesh() {
 }
 
 function onResults(results) {
-    if (!results.multiFaceLandmarks) return;
+    if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+        console.log("No face detected");
+        return;
+    }
 
-    canvas.width = videoElement.videoWidth;
-    canvas.height = videoElement.videoHeight;
+    console.log("Face landmarks detected:", results.multiFaceLandmarks);
+
+    // Ensure canvas size matches video dimensions
+    canvas.width = videoElement.videoWidth || videoElement.offsetWidth;
+    canvas.height = videoElement.videoHeight || videoElement.offsetHeight;
+
+    // Clear canvas and redraw video
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = "cyan";
     ctx.lineWidth = 2;
 
+    // Draw face landmarks
     results.multiFaceLandmarks.forEach((landmarks) => {
         landmarks.forEach((point) => {
             ctx.beginPath();
@@ -45,7 +54,8 @@ async function startWebcam() {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         videoElement.srcObject = stream;
 
-        videoElement.onloadeddata = () => {
+        // Initialize face mesh after the video is fully loaded
+        videoElement.onloadedmetadata = () => {
             initializeFaceMesh();
         };
     } catch (error) {
