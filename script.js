@@ -1,52 +1,43 @@
-let faceLandmarker;
+let faceMesh;
 const videoElement = document.getElementById("webcam");
 const canvas = document.getElementById("overlay");
 const ctx = canvas.getContext("2d");
 
 async function initializeFaceMesh() {
-    const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-    );
-
-    faceLandmarker = await new FaceLandmarker({
-        baseOptions: {
-            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker_task/float16/latest/face_landmarker.task"
-        },
-        runningMode: "VIDEO",
-        numFaces: 1
+    faceMesh = new FaceMesh({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
     });
 
-    requestAnimationFrame(renderFrame);
+    faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onResults);
 }
 
-async function renderFrame() {
-    if (!faceLandmarker) return;
+function onResults(results) {
+    if (!results.multiFaceLandmarks) return;
 
-    if (videoElement.readyState >= 2) {
-        canvas.width = videoElement.videoWidth;
-        canvas.height = videoElement.videoHeight;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-        const results = faceLandmarker.detectForVideo(videoElement, performance.now());
+    ctx.strokeStyle = "cyan";
+    ctx.lineWidth = 2;
 
-        if (results.faceLandmarks.length > 0) {
-            ctx.strokeStyle = "red";
-            ctx.lineWidth = 2;
-
-            results.faceLandmarks.forEach((landmarks) => {
-                landmarks.forEach((point) => {
-                    ctx.beginPath();
-                    ctx.arc(point.x * canvas.width, point.y * canvas.height, 2, 0, 2 * Math.PI);
-                    ctx.fillStyle = "cyan";
-                    ctx.fill();
-                    ctx.stroke();
-                });
-            });
-        }
-    }
-
-    requestAnimationFrame(renderFrame);
+    results.multiFaceLandmarks.forEach((landmarks) => {
+        landmarks.forEach((point) => {
+            ctx.beginPath();
+            ctx.arc(point.x * canvas.width, point.y * canvas.height, 2, 0, 2 * Math.PI);
+            ctx.fillStyle = "cyan";
+            ctx.fill();
+            ctx.stroke();
+        });
+    });
 }
 
 async function startWebcam() {

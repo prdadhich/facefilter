@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebAR Lip Detection</title>
+    <title>WebAR Face Mesh</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- Load MediaPipe Vision -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js" crossorigin="anonymous"></script>
+    <!-- Correct MediaPipe Face Landmarker script -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
 </head>
 <body>
     <video id="webcam" autoplay playsinline></video>
     <canvas id="overlay"></canvas>
-    <script src="script.js"></script> <!-- Remove type="module" -->
+    <script src="script.js"></script>
 </body>
 </html>
