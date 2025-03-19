@@ -1,50 +1,51 @@
-import { FilesetResolver, FaceLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest";
+const videoElement = document.getElementById("webcam");
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
 
 let faceLandmarker;
-let videoElement = document.getElementById("webcam");
-let canvas = document.createElement("canvas");
-let ctx = canvas.getContext("2d");
+
+// Append canvas to the DOM
+document.body.appendChild(canvas);
 
 async function initializeFaceMesh() {
-    const vision = await FilesetResolver.forVisionTasks(
+    const vision = await Vision.FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
     );
 
-    faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+    faceLandmarker = await Vision.FaceLandmarker.createFromOptions(vision, {
         baseOptions: {
-            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker.task"
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker_task/float16/latest/face_landmarker.task"
         },
         runningMode: "VIDEO",
         numFaces: 1
     });
 
-    // Add canvas to the DOM
-    document.body.appendChild(canvas);
-    canvas.width = videoElement.videoWidth;
-    canvas.height = videoElement.videoHeight;
-
     requestAnimationFrame(renderFrame);
 }
 
 async function renderFrame() {
+    if (!faceLandmarker) return;
+
     if (videoElement.readyState >= 2) {
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
         const results = faceLandmarker.detectForVideo(videoElement, performance.now());
 
         if (results.faceLandmarks.length > 0) {
-            results.faceLandmarks.forEach((landmarks) => {
-                ctx.strokeStyle = "red";
-                ctx.lineWidth = 2;
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 2;
 
-                for (let point of landmarks) {
+            results.faceLandmarks.forEach((landmarks) => {
+                landmarks.forEach((point) => {
                     ctx.beginPath();
                     ctx.arc(point.x * canvas.width, point.y * canvas.height, 2, 0, 2 * Math.PI);
                     ctx.fillStyle = "cyan";
                     ctx.fill();
                     ctx.stroke();
-                }
+                });
             });
         }
     }
