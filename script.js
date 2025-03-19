@@ -1,18 +1,14 @@
+let faceLandmarker;
 const videoElement = document.getElementById("webcam");
-const canvas = document.createElement("canvas");
+const canvas = document.getElementById("overlay");
 const ctx = canvas.getContext("2d");
 
-let faceLandmarker;
-
-// Append canvas to the DOM
-document.body.appendChild(canvas);
-
 async function initializeFaceMesh() {
-    const vision = await Vision.FilesetResolver.forVisionTasks(
+    const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
     );
 
-    faceLandmarker = await Vision.FaceLandmarker.createFromOptions(vision, {
+    faceLandmarker = await new FaceLandmarker({
         baseOptions: {
             modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker_task/float16/latest/face_landmarker.task"
         },
