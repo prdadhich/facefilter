@@ -3,15 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebAR Face Mesh</title>
+    <title>Catch the Candy AR</title>
     <link rel="stylesheet" href="style.css">
-
-    <!-- Correct MediaPipe Face Landmarker script -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <!-- MediaPipe Face Mesh -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 </head>
 <body>
-    <video id="webcam" autoplay playsinline></video>
-    <canvas id="overlay"></canvas>
+    <div id="game-container">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="overlay"></canvas>
+        
+        <div id="hud">
+            <div class="hud-item" id="score-container">
+                <span class="label">SCORE</span>
+                <span id="score">0</span>
+            </div>
+            <div class="hud-item" id="lives-container">
+                <span class="label">LIVES</span>
+                <div id="lives-icons">
+                    <span class="heart">❤️</span>
+                    <span class="heart">❤️</span>
+                    <span class="heart">❤️</span>
+                </div>
+            </div>
+            <div class="hud-item" id="level-container">
+                <span class="label">LEVEL</span>
+                <span id="level">1</span>
+            </div>
+        </div>
+
+        <button id="mute-toggle" title="Toggle Sound">🔊</button>
+
+        <div id="game-over" class="hidden">
+            <div class="modal">
+                <h1>GAME OVER</h1>
+                <p>You caught <span id="final-score">0</span> items!</p>
+                <button id="restart-btn">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
